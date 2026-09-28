@@ -123,6 +123,7 @@ def scrape_momondo(file_name=FILE_NAME_MOMONDO):
         print(f"\t Price: {price:_} | Real price: {real_price:_}")
 
         df.loc[len(df)] = new_row
+        df = df.sort_values(by="PRICE_REAL", ascending=True)
         df.to_csv(file_name, index=False, encoding="utf-8-sig")
 
     df = df.sort_values(by="PRICE_REAL", ascending=True)
