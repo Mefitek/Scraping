@@ -69,7 +69,7 @@ SCRAPES_DIR_MOMONDO.mkdir(exist_ok=True)
 
 FILE_NAME_MOMONDO = SCRAPES_DIR_MOMONDO / f"momondo_{datetime.now().strftime('%Y_%m_%d')}.csv"
 
-SCRAPE_TIME_MOMONDO = 12_000 # [ms]
+SCRAPE_TIME_MOMONDO = 16_000 # [ms]
 # =========================================================
 
 
@@ -141,6 +141,8 @@ def scrape_google(file_name=FILE_NAME_GOOGLE):
     price = scrape_google_flights(url, SCRAPE_TIME_GOOGLE)
     print(price)
 
+from matplotlib.ticker import MultipleLocator
+
 def graph_momondo(folder=SCRAPES_DIR_MOMONDO):
     folder = Path(folder)
 
@@ -190,13 +192,21 @@ def graph_momondo(folder=SCRAPES_DIR_MOMONDO):
     plt.ylabel("Cena [Kč]")
     plt.title("Vývoj cen Momondo")
     plt.xticks(days)
-    plt.grid(True, alpha=0.3)
-    plt.legend()
 
+    ax = plt.gca()
+
+    # Hlavní čáry po 500 Kč, vedlejší po 100 Kč
+    ax.yaxis.set_major_locator(MultipleLocator(500))
+    ax.yaxis.set_minor_locator(MultipleLocator(100))
+
+    # Hlavní i vedlejší mřížka
+    ax.grid(which="major", alpha=0.4)
+    ax.grid(which="minor", alpha=0.15)
+
+    plt.legend()
     plt.tight_layout()
     plt.show()
 
 
 scrape_momondo()
 # graph_momondo()
-# scrape_google()
