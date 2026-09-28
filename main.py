@@ -74,7 +74,8 @@ SCRAPE_TIME_MOMONDO = 16_000 # [ms]
 
 
 
-columns = ["IN", "OUT", "IN-DATE", "OUT-DATE", "LENGTH", "PRICE", "URL", "SCRAPED"]
+columns = ["IN", "OUT", "IN-DATE", "OUT-DATE", "LENGTH", "PRICE", "PRICE_REAL", "CONFIRMED", "URL", "SCRAPED"]
+
 
 def load_df(file_name):
     if file_name.exists():
@@ -100,12 +101,12 @@ def scrape_momondo(file_name=FILE_NAME_MOMONDO):
             print("\t\t URL ALREADY IN DF, SKIPPING.")
             continue
 
-        price = momondo_scraper(url, wait_time=SCRAPE_TIME_MOMONDO)
+        price, real_price, confirmed = momondo_scraper(url, wait_time=SCRAPE_TIME_MOMONDO)
 
         if price == ERROR_PRICE:
             print("\t\t NASTAL ERROR BĚHEM SCRAPINGU, KONČÍM")
             break
-        
+
         new_row = {
             "IN": f"{cz_loc_1}-{jap_in}",
             "OUT": f"{jap_out}-{cz_loc_2}",
@@ -113,18 +114,27 @@ def scrape_momondo(file_name=FILE_NAME_MOMONDO):
             "OUT-DATE": date_out,
             "LENGTH": (date_out - date_in).days,
             "PRICE": price,
+            "PRICE_REAL": real_price,
+            "CONFIRMED": confirmed,
             "URL": url,
             "SCRAPED": datetime.now()
         }
 
-        print(f"\t Price: {price:_}")
-        df.loc[len(df)] = new_row
+        print(f"\t Price: {price:_} | Real price: {real_price:_}")
 
+        df.loc[len(df)] = new_row
         df.to_csv(file_name, index=False, encoding="utf-8-sig")
 
-
-    df = df.sort_values(by="PRICE", ascending=True)
+    df = df.sort_values(by="PRICE_REAL", ascending=True)
     df.to_csv(file_name, index=False, encoding="utf-8-sig")
+
+
+
+
+
+
+
+
 
 from matplotlib.ticker import MultipleLocator
 
