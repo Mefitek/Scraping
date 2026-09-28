@@ -1,5 +1,4 @@
 from scrape_momondo import *
-from scrape_google import *
 import pandas as pd
 from datetime import date, datetime
 from itertools import product
@@ -73,14 +72,6 @@ SCRAPE_TIME_MOMONDO = 16_000 # [ms]
 # =========================================================
 
 
-# =====================    GOOGLE    =====================
-SCRAPES_DIR_GOOGLE = Path(__file__).parent / "scrapes_google"
-SCRAPES_DIR_GOOGLE.mkdir(exist_ok=True)
-
-FILE_NAME_GOOGLE = SCRAPES_DIR_GOOGLE / f"google_{datetime.now().strftime('%Y_%m_%d')}.csv"
-SCRAPE_TIME_GOOGLE = 20_000 # [ms]
-# =========================================================
-
 
 
 columns = ["IN", "OUT", "IN-DATE", "OUT-DATE", "LENGTH", "PRICE", "URL", "SCRAPED"]
@@ -134,12 +125,6 @@ def scrape_momondo(file_name=FILE_NAME_MOMONDO):
 
     df = df.sort_values(by="PRICE", ascending=True)
     df.to_csv(file_name, index=False, encoding="utf-8-sig")
-
-# DOESNT WORK (při scrapování ukazují google flights ohodně míň letů než při browsování)
-def scrape_google(file_name=FILE_NAME_GOOGLE):
-    url = "https://www.google.com/travel/flights/search?tfs=CBwQAhogEgoyMDI3LTA1LTA2KAFqBwgBEgNWSUVyBwgBEgNLSVgaKBIKMjAyNy0wNS0yOGoMCAMSCC9tLzA3ZGZrcgwIAxIIL20vMGZocDlAAUgBcAGCAQsI____________AZgBAw&tfu=EgYIABAAGAA"
-    price = scrape_google_flights(url, SCRAPE_TIME_GOOGLE)
-    print(price)
 
 from matplotlib.ticker import MultipleLocator
 
