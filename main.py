@@ -6,10 +6,10 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 
 MIN_TRIP_LENGTH = 21 # days
+MAX_PRICE = 25_000
 
 BASE_URL = "https://www.momondo.cz/flight-search"
-URL_TAIL = "4adults?fs=cabin%3De%3Bprice%3D-30000%3Bstops%3D1&ucs=rpvfxn&sort=price_a"
-
+URL_TAIL = f"4adults?fs=cabin%3De%3Bprice%3D-{int(MAX_PRICE)}%3Bstops%3D1&ucs=rpvfxn&sort=price_a"
 
 #=====================================================
 #=====================================================
@@ -155,8 +155,10 @@ def graph_momondo(folder=SCRAPES_DIR_MOMONDO):
 
         if "PRICE" not in df.columns or df.empty:
             continue
-
-        prices = pd.to_numeric(df["PRICE"], errors="coerce").dropna()
+        if "PRICE_REAL" in df.columns:
+            prices = pd.to_numeric(df["PRICE_REAL"], errors="coerce").dropna()
+        else:
+            prices = pd.to_numeric(df["PRICE"], errors="coerce").dropna()
 
         if prices.empty:
             continue
