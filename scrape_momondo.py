@@ -51,15 +51,49 @@ def open_momondo_detail(page, price):
             print("\tZvolit kliknuto.")
             return page
 
-        # První pokus nevyšel -> dáme Momondu extra čas
         if attempt == 0:
             print(f"\tCena {price:_} Kč mezi výsledky nenalezena.")
             print("\tČekám dalších 10 sekund na donačtení výsledků...")
             page.wait_for_timeout(10_000)
 
+    # Přesná PRICE nebyla nalezena -> použijeme první výsledek
     print(f"\tVýsledek s cenou {price:_} Kč nenalezen ani na druhý pokus.")
-    return None
+    print("\tPoužívám první (nejvrchnější) výsledek.")
 
+    results = page.locator("div.Fxw9-result-item-container")
+
+    if results.count() == 0:
+        print("\tNenalezen žádný výsledek.")
+        return None
+
+    first_result = results.first
+
+    try:
+        text = first_result.inner_text()
+        raw_prices = re.findall(r"\d[\d\s.\u00a0]*\s*Kč", text)
+        result_prices = [int(re.sub(r"\D", "", value)) for value in raw_prices]
+
+        print(f"\tCeny prvního výsledku: {result_prices}")
+    except Exception:
+        pass
+
+    select_text = first_result.get_by_text("Zvolit", exact=True)
+
+    if select_text.count() == 0:
+        print("\tU prvního výsledku nebylo nalezeno tlačítko Zvolit.")
+        return None
+
+    print("\tKlikám na Zvolit u prvního výsledku...")
+
+    try:
+        select_text.first.scroll_into_view_if_needed()
+        select_text.first.click(timeout=10_000)
+    except Exception as e:
+        print(f"\tChyba při kliknutí na Zvolit: {e}")
+        return None
+
+    print("\tZvolit prvního výsledku kliknuto.")
+    return page
 
 
 def get_real_price(detail_page, wait_time):
