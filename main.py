@@ -4,6 +4,10 @@ from datetime import date, datetime
 from itertools import product
 from pathlib import Path
 import matplotlib.pyplot as plt
+from vpn_reset import reset_vpn
+
+#=====================================================
+RESET_VPN = True # jinak padne
 
 MIN_TRIP_LENGTH = 21 # days
 MAX_PRICE = 25_000
@@ -101,11 +105,20 @@ def scrape_momondo(file_name=FILE_NAME_MOMONDO):
             print("\t\t URL ALREADY IN DF, SKIPPING.")
             continue
 
-        price, real_price, confirmed = momondo_scraper(url, wait_time=SCRAPE_TIME_MOMONDO)
+        while True:
+            price, real_price, confirmed = momondo_scraper(url, wait_time=SCRAPE_TIME_MOMONDO)
 
-        if price == ERROR_PRICE:
-            print("\t\t NASTAL ERROR BĚHEM SCRAPINGU, KONČÍM")
-            break
+            if price != ERROR_PRICE:
+                break
+
+            print("\t\t NASTAL ERROR BĚHEM SCRAPINGU")
+
+            if RESET_VPN:
+                print("\t\t RESETUJI VPN A OPAKUJI SCRAPING")
+                reset_vpn()
+            else:
+                print("\t\t KONČÍM")
+                return
 
         new_row = {
             "IN": f"{cz_loc_1}-{jap_in}",
